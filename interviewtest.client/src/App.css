@@ -1,0 +1,22 @@
+.app-container {
+    padding: 20px;
+}
+
+.employees-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.employees-table th,
+.employees-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+.employees-table th {
+    text-align: left;
+}
+
+.employees-table thead tr {
+    background-color: #d3d3d3;
+}
