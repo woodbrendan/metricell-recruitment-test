@@ -9,7 +9,7 @@ namespace InterviewTest.Server.Controllers
     public class EmployeesController : ControllerBase
     {
         [HttpGet]
-        public List<Employee> Get()
+        public ActionResult<List<Employee>> Get()
         {
             var employees = new List<Employee>();
 
@@ -35,6 +35,33 @@ namespace InterviewTest.Server.Controllers
             }
 
             return employees;
+        }
+
+        [HttpPost]
+        public IActionResult Post([FromBody] Employee employee)
+        {
+            if (string.IsNullOrWhiteSpace(employee.Name))
+            {
+                return BadRequest("Name is required");
+            }
+
+            var connectionStringBuilder = new SqliteConnectionStringBuilder() { DataSource = "./SqliteDB.db" };
+            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            {
+                connection.Open();
+
+                var insertCmd = connection.CreateCommand();
+                insertCmd.CommandText = @"INSERT INTO Employees (Name, Value) VALUES (@name, @value)";
+                insertCmd.Parameters.AddWithValue("@name", employee.Name);
+                insertCmd.Parameters.AddWithValue("@value", employee.Value);
+                insertCmd.ExecuteNonQuery();
+
+                var lastIdCmd = connection.CreateCommand();
+                lastIdCmd.CommandText = "SELECT last_insert_rowid()";
+                employee.Id = Convert.ToInt32(lastIdCmd.ExecuteScalar());
+            }
+
+            return CreatedAtAction(nameof(Get), new { id = employee.Id }, employee);
         }
     }
 }

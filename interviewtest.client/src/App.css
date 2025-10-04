@@ -1,5 +1,13 @@
+:root {
+    --primary-colour: #00A57D;
+    --primary-colour-hover: #017a5d;
+    --secondary-colour: #4a4a4a;
+    --secondary-colour-hover: #303030;
+}
+
 .app-container {
     padding: 20px;
+    padding-bottom: 100px; /*Account for FAB*/
 }
 
 .employees-table {
@@ -19,4 +27,96 @@
 
 .employees-table thead tr {
     background-color: #d3d3d3;
+}
+
+.fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 5%;
+    background-color: var(--primary-colour);
+    color: white;
+    border: none;
+    font-size: 32px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.fab:hover {
+    background-color: var(--primary-colour-hover);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    width: 400px;
+}
+
+.modal h2 {
+    margin-top: 0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.modal-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.modal-actions button[type="submit"] {
+    background-color: var(--primary-colour);
+    color: white;
+}
+
+.modal-actions button[type="submit"]:hover {
+    background-color: var(--primary-colour-hover);
+}
+
+.modal-actions button[type="button"] {
+    background-color: var(--secondary-colour);
+    color: white;
+}
+
+.modal-actions button[type="button"]:hover {
+    background-color: var(--secondary-colour-hover);
 }
