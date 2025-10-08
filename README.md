@@ -14,4 +14,32 @@ The base project is using the most recent version of visual studio community wit
 
 - SQLite - database 
 - ASP.NET - backend 
-- React – frontend 
+- React – frontend
+
+## Getting Started
+> [!NOTE]  
+> Make sure you run these commands from the project root directory.
+
+### 1. Clone the Repository
+```
+git clone https://github.com/woodbrendan/metricell-recruitment-test.git
+cd metricell-recruitment-test
+```
+
+### 2. Install Dependencies
+Front End:
+```
+cd InterviewTest.client
+npm install
+```
+Back End:
+```
+cd InterviewTest.server
+dotnet restore
+```
+
+### 3. Run the Application
+```
+dotnet run --project InterviewTest.server
+```
+
