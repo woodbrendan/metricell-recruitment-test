@@ -114,5 +114,60 @@ namespace InterviewTest.Server.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("increment-values")]
+        public IActionResult IncrementValues()
+        {
+            var connectionStringBuilder = new SqliteConnectionStringBuilder() { DataSource = "./SqliteDB.db" };
+            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            {
+                connection.Open();
+
+                var updateCmd = connection.CreateCommand();
+                updateCmd.CommandText = @"
+                    UPDATE Employees
+                    SET Value = CASE
+                        WHEN Name LIKE 'E%' THEN Value + 1
+                        WHEN Name LIKE 'G%' THEN Value + 10
+                        ELSE Value + 100
+                    END";
+                updateCmd.ExecuteNonQuery();
+            }
+
+            return Ok();
+        }
+
+        [HttpGet("sum-filtered")]
+        public ActionResult<object> GetFilteredSum()
+        {
+            var connectionStringBuilder = new SqliteConnectionStringBuilder() { DataSource = "./SqliteDB.db" };
+            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            {
+                connection.Open();
+
+                var queryCmd = connection.CreateCommand();
+                queryCmd.CommandText = @"
+                    SELECT Name, SUM(Value) as TotalValue
+                    FROM Employees
+                    WHERE Name LIKE 'A%' OR Name LIKE 'B%' OR Name LIKE 'C%'
+                    GROUP BY Name
+                    HAVING SUM(Value) >= 11171";
+
+                var results = new List<object>();
+                using (var reader = queryCmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        results.Add(new
+                        {
+                            Name = reader.GetString(0),
+                            TotalValue = reader.GetInt32(1)
+                        });
+                    }
+                }
+
+                return Ok(results);
+            }
+        }
     }
 }
