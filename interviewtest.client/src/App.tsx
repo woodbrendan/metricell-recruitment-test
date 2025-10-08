@@ -11,6 +11,9 @@ function App() {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState<Partial<Employee>>({ name: '', value: 0 });
+    const [editingId, setEditingId] = useState<number | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deletingId, setDeletingId] = useState<number | null>(null);
 
     useEffect(() => {
         fetchEmployees();
@@ -25,8 +28,11 @@ function App() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        const response = await fetch('api/employees', {
-            method: 'POST',
+        const url = editingId ? `api/employees/${editingId}` : 'api/employees';
+        const method = editingId ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method,
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -36,8 +42,45 @@ function App() {
         if (response.ok) {
             setFormData({ name: '', value: 0 });
             setIsModalOpen(false);
+            setEditingId(null);
             fetchEmployees();
         }
+    }
+
+    function handleEdit(employee: Employee) {
+        setFormData({ name: employee.name, value: employee.value });
+        setEditingId(employee.id);
+        setIsModalOpen(true);
+    }
+
+    function handleDeleteClick(id: number) {
+        setDeletingId(id);
+        setIsDeleteModalOpen(true);
+    }
+
+    async function confirmDelete() {
+        if (deletingId === null) return;
+
+        const response = await fetch(`api/employees/${deletingId}`, {
+            method: 'DELETE',
+        });
+
+        if (response.ok) {
+            setIsDeleteModalOpen(false);
+            setDeletingId(null);
+            fetchEmployees();
+        }
+    }
+
+    function handleCloseModal() {
+        setIsModalOpen(false);
+        setEditingId(null);
+        setFormData({ name: '', value: 0 });
+    }
+
+    function handleCloseDeleteModal() {
+        setIsDeleteModalOpen(false);
+        setDeletingId(null);
     }
 
     return (
@@ -50,6 +93,7 @@ function App() {
                         <th>ID</th>
                         <th>Name</th>
                         <th>Value</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,6 +102,10 @@ function App() {
                             <td>{employee.id}</td>
                             <td>{employee.name}</td>
                             <td>{employee.value}</td>
+                            <td>
+                                <button className="edit-btn" onClick={() => handleEdit(employee)}>Edit</button>
+                                <button className="delete-btn" onClick={() => handleDeleteClick(employee.id)}>Delete</button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
@@ -66,9 +114,9 @@ function App() {
             <button className="fab" onClick={() => setIsModalOpen(true)}>+</button>
 
             {isModalOpen && (
-                <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+                <div className="modal-overlay" onClick={handleCloseModal}>
                     <div className="modal" onClick={(e) => e.stopPropagation()}>
-                        <h2>Add Employee</h2>
+                        <h2>{editingId ? 'Edit Employee' : 'Add Employee'}</h2>
                         <form onSubmit={handleSubmit}>
                             <div className="form-group">
                                 <label htmlFor="name">Name:</label>
@@ -90,10 +138,23 @@ function App() {
                                 />
                             </div>
                             <div className="modal-actions">
-                                <button type="button" onClick={() => setIsModalOpen(false)}>Cancel</button>
-                                <button type="submit">Add</button>
+                                <button type="button" onClick={handleCloseModal}>Cancel</button>
+                                <button type="submit">{editingId ? 'Update' : 'Add'}</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {isDeleteModalOpen && (
+                <div className="modal-overlay" onClick={handleCloseDeleteModal}>
+                    <div className="modal" onClick={(e) => e.stopPropagation()}>
+                        <h2>Delete Employee</h2>
+                        <p>Are you sure you want to delete this employee?</p>
+                        <div className="modal-actions">
+                            <button type="button" onClick={handleCloseDeleteModal}>Cancel</button>
+                            <button type="button" className="delete-btn" onClick={confirmDelete}>Delete</button>
+                        </div>
                     </div>
                 </div>
             )}

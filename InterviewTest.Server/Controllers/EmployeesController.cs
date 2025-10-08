@@ -63,5 +63,56 @@ namespace InterviewTest.Server.Controllers
 
             return CreatedAtAction(nameof(Get), new { id = employee.Id }, employee);
         }
+
+        [HttpPut("{id}")]
+        public IActionResult Put(int id, [FromBody] Employee employee)
+        {
+            if (string.IsNullOrWhiteSpace(employee.Name))
+            {
+                return BadRequest("Name is required");
+            }
+
+            var connectionStringBuilder = new SqliteConnectionStringBuilder() { DataSource = "./SqliteDB.db" };
+            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            {
+                connection.Open();
+
+                var updateCmd = connection.CreateCommand();
+                updateCmd.CommandText = @"UPDATE Employees SET Name = @name, Value = @value WHERE Id = @id";
+                updateCmd.Parameters.AddWithValue("@id", id);
+                updateCmd.Parameters.AddWithValue("@name", employee.Name);
+                updateCmd.Parameters.AddWithValue("@value", employee.Value);
+                var rowsAffected = updateCmd.ExecuteNonQuery();
+
+                if (rowsAffected == 0)
+                {
+                    return NotFound();
+                }
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var connectionStringBuilder = new SqliteConnectionStringBuilder() { DataSource = "./SqliteDB.db" };
+            using (var connection = new SqliteConnection(connectionStringBuilder.ConnectionString))
+            {
+                connection.Open();
+
+                var deleteCmd = connection.CreateCommand();
+                deleteCmd.CommandText = @"DELETE FROM Employees WHERE Id = @id";
+                deleteCmd.Parameters.AddWithValue("@id", id);
+                var rowsAffected = deleteCmd.ExecuteNonQuery();
+
+                if (rowsAffected == 0)
+                {
+                    return NotFound();
+                }
+            }
+
+            return NoContent();
+        }
     }
 }
